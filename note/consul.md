@@ -340,14 +340,14 @@ n1    172.26.62.129:8301  alive   server  1.11.4  2         dc1      default    
 - `consul leave` 优雅的关闭consul  ^C 也能够关闭    
 ![consul——leave](./assets/consul-1649749756742.png)
 
-###consul使用
+### consul使用
 consul有两种运行模式，server和client
 `consult agent -server`  以服务端方式
 `consult agent`          以客户端方式
 
 每个数据中心至少必须拥有一个server。一个client是一个非常轻量级的进程.用于注册服务,运行健康检查和转发对server的查询,agent必须在集群中的每个主机上运行.
 
-####server模式启动
+#### server模式启动
 ```shell
 consul agent -server -bootstrap-expect 1 -data-dir /tmp/consul -node=n1 -bind=172.26.62.129 -ui -rejoin -config-dir=/etc/consul.d/ -client 0.0.0.0
 ```
@@ -362,7 +362,7 @@ consul agent -server -bootstrap-expect 1 -data-dir /tmp/consul -node=n1 -bind=17
 > - `-client`：consul服务侦听地址，这个地址提供HTTP、DNS、RPC等服务，默认是127.0.0.1所以不对外提供服务，如果你要对外提供服务改成0.0.0.0
 > - `data-dir`：提供一个目录用来存放agent的状态，所有的agent允许都需要该目录，该目录必须是稳定的，系统重启后都继续存在
 
-####注册服务到consul
+#### 注册服务到consul
 步骤：
 1. 进入配置文件目录 `cd /etc/consul.d/`
 2. 创建json文件 `sudo vim web.json`
@@ -378,7 +378,7 @@ consul agent -server -bootstrap-expect 1 -data-dir /tmp/consul -node=n1 -bind=17
 curl -s 127.0.0.1:8500/v1/catalog/service/faceid
 ```
 
-####健康检查
+#### 健康检查
 1. `sudo vim /etc/consul.d/web.json`打开配置文件
 2. 写入服务的配置信息
 ```json
@@ -395,7 +395,7 @@ curl -s 127.0.0.1:8500/v1/catalog/service/faceid
 - 若已经关闭，执行`consul agent -server -bootstrap-expect 1 -data-dir /tmp/consul -node=n1 -bind=172.26.62.129 -ui -rejoin -config-dir=/etc/consul.d/ -client 0.0.0.0`
 4. 浏览器查看服务健康状况
 - 此时查看为不健康的，因为此时没有服务实时回复
-####client模式启动
+#### client模式启动
 ```shell
 consul agent -data-dir /tmp/consul -node=n2 -bind= -config-dir /etc/consul.d -rejoin -join 172.26.62.129
 ```
