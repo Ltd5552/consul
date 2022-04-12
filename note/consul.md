@@ -337,7 +337,7 @@ n1    172.26.62.129:8301  alive   server  1.11.4  2         dc1      default    
 ```
 - `consul info` 查看当前consul的ip信息
 
-- `consul leave` 优雅的关闭consul  ^C 也能够关闭 
+- `consul leave` 优雅的关闭consul  ^C 也能够关闭    
 ![consul——leave](./assets/consul-1649749756742.png)
 
 ###consul使用
@@ -366,7 +366,7 @@ consul agent -server -bootstrap-expect 1 -data-dir /tmp/consul -node=n1 -bind=17
 步骤：
 1. 进入配置文件目录 `cd /etc/consul.d/`
 2. 创建json文件 `sudo vim web.json`
-3. 按照json语法，填写服务信息   
+3. 按照json语法，填写服务信息       
 ![etc/consul.d/.json](./assets/consul-1649752828083.png)
 4. 重新启动consul
 ```shell
