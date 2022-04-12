@@ -74,8 +74,8 @@ consul
 查看consul下面的命令  
 ![conusl_command](./assets/consul-1649734740711.png)
 
-### consul -agent
-介绍一个核心指令 -agent
+### consul常用命令
+-`consul agent`
 运行agent来维护成员的重要信息、运行检查、服务宣布、查询处理等等。
 ```shell
 Usage: consul agent [options]
@@ -326,3 +326,77 @@ Command Options
 > -status：过滤出符合正则规则的节点    
 
 **reload**指令可以重新加载agent的配置文件。SIGHUP指令在重新加载配置文件时使用，任何重新加载的错误都会写在agent的log文件中，并不会打印到屏幕。
+
+- `consul members`查看当前集群多少个成员
+![consul——members](./assets/consul-1649749470826.png)
+```shell
+#节点  网络地址              状态    类型     版本     协议     数据中心         分管部分 
+Node  Address             Status  Type    Build   Protocol  DC       Partition  Segment
+n1    172.26.62.129:8301  alive   server  1.11.4  2         dc1      default    <all>
+
+```
+- `consul info` 查看当前consul的ip信息
+
+- `consul leave` 优雅的关闭consul  ^C 也能够关闭 
+![consul——leave](./assets/consul-1649749756742.png)
+
+###consul使用
+consul有两种运行模式，server和client
+`consult agent -server`  以服务端方式
+`consult agent`          以客户端方式
+
+每个数据中心至少必须拥有一个server。一个client是一个非常轻量级的进程.用于注册服务,运行健康检查和转发对server的查询,agent必须在集群中的每个主机上运行.
+
+####server模式启动
+```shell
+consul agent -server -bootstrap-expect 1 -data-dir /tmp/consul -node=n1 -bind=172.26.62.129 -ui -rejoin -config-dir=/etc/consul.d/ -client 0.0.0.0
+```
+
+> - `-server` ： 定义agent以server模式运行
+> - `-bootstrap-expect` ：在一个datacenter中期望提供的server节点数目，当该值提供的时候，consul一直等到达到指定sever数目的时候才会引导整个集群，该标记不能和bootstrap共用，当只有一个的时候直接用 -bootstrap就行
+> - `-bind`：该地址用来在集群内部的通讯，集群内的所有节点到地址都必须是可达的，默认是0.0.0.0，应修改为主机ip地址(这里应该使用内网ip，而访问的时候为公网ip)
+> - `-node`：节点在集群中的名称，在一个集群中必须是唯一的，默认是该节点的主机名
+> - `-ui`： 启动web界面:默认端口8500
+> - `-rejoin`：使consul忽略先前的离开，在再次启动后仍旧尝试加入集群中。
+> - `-config-dir`：配置文件目录，里面所有以.json结尾的文件都会被加载
+> - `-client`：consul服务侦听地址，这个地址提供HTTP、DNS、RPC等服务，默认是127.0.0.1所以不对外提供服务，如果你要对外提供服务改成0.0.0.0
+> - `data-dir`：提供一个目录用来存放agent的状态，所有的agent允许都需要该目录，该目录必须是稳定的，系统重启后都继续存在
+
+####注册服务到consul
+步骤：
+1. 进入配置文件目录 `cd /etc/consul.d/`
+2. 创建json文件 `sudo vim web.json`
+3. 按照json语法，填写服务信息   
+![etc/consul.d/.json](./assets/consul-1649752828083.png)
+4. 重新启动consul
+```shell
+consul agent -server -bootstrap-expect 1 -data-dir /tmp/consul -node=n1 -bind=172.26.62.129 -ui -rejoin -config-dir=/etc/consul.d/ -client 0.0.0.0
+```
+5.查询服务 浏览器查看/命令查看  
+![web查询服务](./assets/consul-1649752968419.png)
+```shell
+curl -s 127.0.0.1:8500/v1/catalog/service/faceid
+```
+
+####健康检查
+1. `sudo vim /etc/consul.d/web.json`打开配置文件
+2. 写入服务的配置信息
+```json
+ "check":{
+            "id":"api",//需要检查的id
+            "name":"ltd check",//检查名
+            "http":"http://172.26.62.129:8800",//被检查服务的地址
+            "interval":"5s",//每5s请求一次
+            "timeout":"1s"//多久未返回就算不健康
+}
+```
+3. 执行命令 
+- 若未关闭consul服务，执行`consul reload`
+- 若已经关闭，执行`consul agent -server -bootstrap-expect 1 -data-dir /tmp/consul -node=n1 -bind=172.26.62.129 -ui -rejoin -config-dir=/etc/consul.d/ -client 0.0.0.0`
+4. 浏览器查看服务健康状况
+- 此时查看为不健康的，因为此时没有服务实时回复
+####client模式启动
+```shell
+consul agent -data-dir /tmp/consul -node=n2 -bind= -config-dir /etc/consul.d -rejoin -join 172.26.62.129
+```
+5. consul健康检查的必须是`script/http/tcp/ttl`中的一种，上面的"http"可以更改为其他几种即可
