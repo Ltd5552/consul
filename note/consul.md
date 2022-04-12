@@ -1,4 +1,4 @@
-##服务发现
+## 服务发现
 微服务开发的时候，客户端的一个接口可能需要调用N个服务，客户端必须知道所有服务的网络位置（ip+port）  
 以往的做法是把服务的地址放在配置文件活数据库中，这样就有以下几个问题：
 
@@ -21,7 +21,7 @@
 + 客户端发现（client-side service discovery）
 + 服务端发现（server-side discovery）
 
-##常见服务发现框架
+## 常见服务发现框架
 常见服务发现框架 Consul、 ZooKeeper以及Etcd  
 - Consul 是强一致性的数据存储，使用 Gossip 形成动态集群。它提供分级键/值存储方式，不仅可以存储数据，而且可以用于注册器件事各种任务，从发送数据改变通知到运行健康检查和自定义命令
 - ZooKeeper 是这种类型的项目中历史最悠久的之一，它起源于 Hadoop。它非常成熟、可靠，被许多大公司（YouTube、eBay、雅虎等）使用。
@@ -29,9 +29,9 @@
 
 ![三种服务发现对比](./assets/consul-1649733731074.png)
 
-##consul
+## consul
 
-###进一步了解consul
+### 进一步了解consul
 
 Consul是HashiCorp公司推出的开源工具，用于实现分布式系统的服务发现与配置。包含多个组件,但是作为一个整体,为基础设施提供服务发现和服务配置的工具,提供以下关键特性:
 
@@ -46,7 +46,7 @@ Consul是HashiCorp公司推出的开源工具，用于实现分布式系统的�
 > 官方建议：最好是三台或者三台以上的consul在运行，同名服务最好是三台或三台以上，默认可以搭建集群
 
 
-###consul安装
+### consul安装
 
 Consul用Golang实现，因此具有天然可移植性 (支持 Linux、windows和macOS)。
 安装非常方便，根据系统选择合适的即可
@@ -74,7 +74,7 @@ consul
 查看consul下面的命令  
 ![conusl_command](./assets/consul-1649734740711.png)
 
-###consul -agent
+### consul -agent
 介绍一个核心指令 -agent
 运行agent来维护成员的重要信息、运行检查、服务宣布、查询处理等等。
 ```shell
